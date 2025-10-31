@@ -34,4 +34,7 @@ function renderMessages() {
   container.innerHTML = '';
   messages.forEach(msg => {
     const div = document.createElement('div');
-    div.textContent = `${msg.user}:
+    div.textContent = `${msg.user}: ${msg.text}`;
+    container.appendChild(div);
+  });
+}
