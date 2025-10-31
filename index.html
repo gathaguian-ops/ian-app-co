@@ -1,66 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Imptech Consolidated — Web Messenger</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imptech Consolidated Messenger</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="dot"></div>
-      <span>Imptech Consolidated</span>
-    </div>
-    <div class="controls">
-      <button id="btn-key" title="Set OpenAI API Key">Set OpenAI Key</button>
-      <button id="btn-clear" title="Clear all local messages">Clear Chat</button>
-    </div>
+  <header>
+    <h1>💬 Imptech Consolidated Messenger</h1>
   </header>
 
-  <main class="container">
-    <section id="loginView" class="card center">
-      <h2>Join the chat</h2>
-      <input id="usernameInput" placeholder="Your display name" />
-      <button id="joinBtn">Join Chat</button>
-      <p class="hint">No accounts — just pick a display name. Messages are stored in your browser.</p>
-    </section>
+  <div id="login">
+    <input type="text" id="username" placeholder="Enter your name" />
+    <button type="button" onclick="login()">Join Chat</button>
+  </div>
 
-    <section id="chatView" class="card" style="display:none;">
-      <div class="chatHeader">
-        <div><strong id="displayName"></strong></div>
-        <div class="sub">Imptech Consolidated — Web Messenger</div>
-      </div>
+  <div id="chat" style="display:none;">
+    <div id="chatHeader">
+      <h2>Welcome, <span id="userDisplay"></span></h2>
+      <button type="button" onclick="logout()">Logout</button>
+    </div>
 
-      <div id="messages" class="messages" aria-live="polite"></div>
+    <div id="messages"></div>
 
-      <div class="composer">
-        <input id="textInput" type="text" placeholder="Type a message..." />
-        <input id="fileInput" type="file" accept="image/*,video/*" />
-        <button id="sendBtn">Send</button>
-        <button id="aiBtn" title="Ask AI">AI</button>
-      </div>
-
-      <div class="footerNote">
-        <small>Media stored locally (in your browser). To keep your API key private for production, use a backend proxy.</small>
-      </div>
-    </section>
-  </main>
-
-  <!-- modal prompt for API key -->
-  <div id="modalKey" class="modal" style="display:none;">
-    <div class="modalCard">
-      <h3>OpenAI API Key</h3>
-      <p>Paste your OpenAI API key (starts with <code>sk-</code>). This will be stored in your browser session only.</p>
-      <input id="openaiKeyInput" placeholder="sk-..." />
-      <div class="modalActions">
-        <button id="saveKey">Save</button>
-        <button id="closeKey">Close</button>
-      </div>
-      <p class="small danger">Do not paste this key on public/shared devices.</p>
+    <div id="inputArea">
+      <input type="file" id="fileInput" accept="image/*,video/*" />
+      <input type="text" id="messageInput" placeholder="Type a message..." />
+      <button type="button" onclick="sendMessage()">Send</button>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
-  </html>
+    </html>
