@@ -1,92 +1,70 @@
-let username = '';
-const apiKey = "sk-REPLACE_WITH_YOUR_OPENAI_KEY"; // Replace with your real key
+const chatBox = document.getElementById("chat-box");
+const chatForm = document.getElementById("chat-form");
+const userInput = document.getElementById("userInput");
+const fileInput = document.getElementById("fileInput");
 
-function login() {
-  const input = document.getElementById('username');
-  if (input.value.trim() === '') {
-    alert('Enter your name');
-    return;
-  }
+// ⚠️ Replace this with your actual OpenAI API key (keep it private)
+const OPENAI_API_KEY = "sk-your_api_key_here";
 
-  username = input.value.trim();
-  document.getElementById('userDisplay').textContent = username;
-  document.getElementById('login').style.display = 'none';
-  document.getElementById('chat').style.display = 'block';
-}
+chatForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-function logout() {
-  username = '';
-  document.getElementById('chat').style.display = 'none';
-  document.getElementById('login').style.display = 'block';
-}
-
-function renderMessage(user, text, mediaUrl = null) {
-  const container = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = `message ${user === 'AI' ? 'ai' : 'user'}`;
-  div.innerHTML = `<b>${user}:</b> ${text || ''}`;
-
-  if (mediaUrl) {
-    if (mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm')) {
-      div.innerHTML += `<br><video controls src="${mediaUrl}"></video>`;
-    } else {
-      div.innerHTML += `<br><img src="${mediaUrl}" alt="uploaded media" />`;
-    }
-  }
-
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-async function sendMessage() {
-  const textInput = document.getElementById('messageInput');
-  const fileInput = document.getElementById('fileInput');
-  const text = textInput.value.trim();
+  const userMessage = userInput.value.trim();
   const file = fileInput.files[0];
 
-  // if both are empty, do nothing
-  if (!text && !file) return;
+  if (!userMessage && !file) return;
 
-  let mediaUrl = null;
+  // Show user message
+  const userDiv = document.createElement("div");
+  userDiv.classList.add("message", "user");
+  userDiv.innerHTML = userMessage;
+  chatBox.appendChild(userDiv);
 
+  // If there’s a file, display it
   if (file) {
-    mediaUrl = URL.createObjectURL(file);
+    const mediaDiv = document.createElement("div");
+    mediaDiv.classList.add("message", "user");
+    const mediaURL = URL.createObjectURL(file);
+
+    if (file.type.startsWith("image/")) {
+      mediaDiv.innerHTML = `<img src="${mediaURL}" alt="Image" />`;
+    } else if (file.type.startsWith("video/")) {
+      mediaDiv.innerHTML = `<video controls src="${mediaURL}"></video>`;
+    } else if (file.type.startsWith("audio/")) {
+      mediaDiv.innerHTML = `<audio controls src="${mediaURL}"></audio>`;
+    }
+
+    chatBox.appendChild(mediaDiv);
   }
 
-  // render user message
-  renderMessage(username, text, mediaUrl);
+  userInput.value = "";
+  fileInput.value = "";
 
-  // clear inputs
-  textInput.value = '';
-  fileInput.value = '';
-
-  // if there is text, trigger AI response
-  if (text) await getAIResponse(text);
-}
-
-async function getAIResponse(message) {
-  renderMessage('AI', 'Typing...');
+  // Call OpenAI
+  const aiDiv = document.createElement("div");
+  aiDiv.classList.add("message", "ai");
+  aiDiv.innerHTML = "Thinking...";
+  chatBox.appendChild(aiDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
 
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'You are Imptech Assistant, a helpful chat companion.' },
-          { role: 'user', content: message }
-        ]
-      })
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: userMessage || "Describe this media" }],
+      }),
     });
 
-    const data = await res.json();
-    const aiReply = data.choices?.[0]?.message?.content || 'Error: No response from AI.';
-    renderMessage('AI', aiReply);
-  } catch (e) {
-    renderMessage('AI', '⚠️ Error: Unable to reach OpenAI API.');
+    const data = await response.json();
+    aiDiv.innerHTML = data.choices?.[0]?.message?.content || "AI didn’t respond properly.";
+  } catch (error) {
+    aiDiv.innerHTML = "⚠️ Error connecting to AI.";
   }
-}
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
